@@ -6,7 +6,6 @@ const BUDGET_OPTIONS = ["Under $5k", "$5k-$20k", "$20k-$50k", "$50k+"];
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LeadForm() {
-
   // use react hook form for form handling and validation
   const {
     register,
@@ -23,6 +22,7 @@ export default function LeadForm() {
   });
   const [formError, setFormError] = useState("");
   const [showToast, setShowToast] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(false);
 
   async function onSubmit(values) {
     setFormError("");
@@ -30,8 +30,9 @@ export default function LeadForm() {
     try {
       await api.post("/leads", values);
       reset();
+      setSuccessMessage(true);
       setShowToast(true);
-      setTimeout(() => setShowToast(false), 4000);
+      setTimeout(() => setShowToast(false), 5000);
     } catch (err) {
       const serverErrors = err.response?.data?.errors;
       if (serverErrors && typeof serverErrors === "object") {
@@ -59,6 +60,31 @@ export default function LeadForm() {
           24 hours.
         </p>
       </div>
+
+      {successMessage && (
+        <div className="mb-8 flex items-center gap-3 rounded-2xl border border-green-200 bg-green-50 p-4">
+          <div className="flex-shrink-0">
+            <svg
+              className="h-6 w-6 text-green-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div>
+            <h3 className="font-semibold text-green-900">Success!</h3>
+            <p className="text-sm text-green-800">
+              Thanks for reaching out! We'll review your inquiry and get back to
+              you shortly.
+            </p>
+          </div>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
         <div className="grid gap-6 md:grid-cols-2">
@@ -156,8 +182,8 @@ export default function LeadForm() {
       </form>
 
       {showToast && (
-        <div className="absolute left-1/2 top-0 -translate-x-1/2 -translate-y-full rounded-full bg-slate-950 px-4 py-2 text-sm font-medium text-white shadow-lg shadow-slate-900/30">
-          Thanks! We'll be in touch shortly.
+        <div className="fixed left-1/2 bottom-4 -translate-x-1/2 transform rounded-full bg-green-600 px-6 py-3 text-sm font-medium text-white shadow-lg shadow-green-900/30 animate-bounce">
+          ✓ Message sent successfully!
         </div>
       )}
     </div>
